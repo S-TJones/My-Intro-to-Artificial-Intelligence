@@ -1,4 +1,14 @@
 
+# Prints the path as a single string
+def dfs_path(path):
+    arrow = "-->"
+
+    if "|" in path:
+        result = " ".join(path)
+    else:
+        result = arrow.join(path)
+
+    return result
 
 
 # Depth First Traversal
@@ -24,8 +34,8 @@ def depth_first(start, graph, goal):
         fringe += ["|"] + node_children + stack
         stack = node_children + stack
 
-    print(f"| The PATH: {path}")
-    return fringe
+    print(f"| The PATH: {dfs_path(path)}")
+    return dfs_path(fringe)
 
 #--------------------------------------------------------
 if __name__ == "__main__":
@@ -41,4 +51,4 @@ if __name__ == "__main__":
     }
 
     result = depth_first("A", graph, "G")
-    print(result)
+    print("* HELPER: ", result)
