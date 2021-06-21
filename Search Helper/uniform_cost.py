@@ -1,7 +1,6 @@
 
 from visual_helper import *
 
-
 # Sorts the queue according to priority
 def reorder(queue):
 
@@ -86,54 +85,63 @@ def add_all(number, queue):
 
 
 # Removes all nodes with the matching key
-def remove_nodes(key, queue):
+def remove_nodes(keys, queue):
 
     new_queue = list()
 
+    if len(keys) == 0:
+        return new_queue
+
     for node in queue:
-        if node[0] != key:
+        if node[0] not in keys:
             new_queue.append(node)
 
     return new_queue
 
 
-def uniform_cost(start, graph):
+def reform_output(path):
+
+    new_list = list()
+    prev = ""
+
+    for ele in path:
+        if not ele.isalpha():
+            ele = prev + ele
+            new_list = new_list[:-1]
+
+        new_list.append(ele)
+        prev = ele
+
+    return new_list
+
+
+def uniform_cost(start, graph, target):
+
+    if type(target) != type([]):
+        target = [target]
+
+    def path_traveller(start, graph, path, total, all_paths=[]):
+
+        if start in target:
+            all_paths.append((path, total))
+            return 
+
+        # Get current node children
+        node_children = graph[start]
+
+        for node in node_children:
+            node_key = node[0]
+            new_path = path + node_key
+            new_total = total + node[1]
+            path_traveller(node_key, graph, new_path, new_total, all_paths)
+
+        return all_paths
+
+    paths = list()
+    all_paths = path_traveller(start, graph, start, 0, paths)
     
-    # fringe is a Priority-Queue
-    visited = set()
-    path = list()
-    queue = list()
-    length = graph
-    total = 0
-
-    next_node = (start, 0)
-    
-    while True:
-        node = next_node[0]
-        weight = next_node[1]
-        total += weight
-
-        path.append(f"{node} - {weight}")
-
-        node_neighbors = graph[node]
-
-        for key in visited:
-            node_neighbors = remove_nodes(key, node_neighbors)
-        
-        # If there are no new nodes, then we've visited them all
-        if node_neighbors == []:
-            break
-
-        node_neighbors = add_all(weight, node_neighbors)
-        queue += node_neighbors
-        
-        next_node = get_smallest(queue)
-
-        queue.remove(next_node)
-        visited.add(node)
-
-    return path, total
-
+    cheapest = get_smallest(all_paths)
+    return cheapest
 
 #--------------------------------------------------------
 if __name__ == "__main__":
@@ -149,30 +157,38 @@ if __name__ == "__main__":
     }
 
     graph2 = {
-        "V0": [("V1", 9), ("V4", 5), ("V3", 4)],
-        "V1": [("V0", 9), ("V4", 12), ("V3", 4), ("V2", 1)],
-        "V2": [("V1", 1), ("V4", 8), ("V3", 2)],
-        "V3": [("V2", 2), ("V0", 4), ("V1", 4)],
-        "V4": [("V0", 5), ("V1", 12), ("V2", 8)]
+        "S": [("A", 1), ("B", 4)],
+        "A": [("C", 3), ("D", 2)],
+        "B": [("G", 5)],
+        "C": [("E", 5)],
+        "D": [("F", 0), ("G", 3)],
+        "E": [("G", 5)],
+        "F": [],
+        "G": []
     }
 
     graph3 = {
-        "A": [("B", 16), ("C", 3), ("H", 2), ("F", 16)],
-        "B": [("A", 16), ("F", 15), ("H", 19), ("C", 8)],
-        "C": [("B", 8), ("A", 3), ("G", 13), ("E", 9), ("H", 15)],
-        "D": [("E", 11), ("G", 16)],
-        "E": [("C", 9), ("G", 6), ("H", 5), ("D", 11)],
-        "F": [("A", 16), ("B", 15), ("H", 14)],
-        "G": [("C", 13), ("D", 16), ("E", 6), ("H", 10)],
-        "H": [("G", 10), ("C", 15), ("B", 19), ("A", 2), ("F", 14), ("E", 5)]
+        "S": [("D", 6), ("B1", 9), ("A", 5)],
+        "A": [("G1", 9), ("B2", 3)],
+        "B1": [],
+        "B2": [("C2", 3)],
+        "C": [("F", 7), ("G2", 5)],
+        "C2": [],
+        "D": [("E", 2), ("C", 2)],
+        "E": [("G3", 7)],
+        "F": [],
+        "G1": [],
+        "G2": [],
+        "G3": []
     }
 
-    # cheapest_path, cost = uniform_cost("A", graph)
-    # cheapest_path, cost = uniform_cost("V0", graph2)
-    cheapest_path, cost = uniform_cost("A", graph3)
+    # cheapest_path, cost = uniform_cost("A", graph, "G")
+    # cheapest_path, cost = uniform_cost("S", graph2, "G")
+    cheapest_path, cost = uniform_cost("S", graph3, ["G1", "G2", "G3"])
 
-    result = "\n| ".join(cheapest_path)
-    print(f"| The PATH: \n| {result}")
+    print()
+    result = get_path( reform_output(cheapest_path) )
+    print(f"| The PATH: {result}")
     print(f"| The COST: {cost}")
 
     # Testing Helper functions ------------------------
