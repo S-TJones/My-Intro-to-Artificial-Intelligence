@@ -36,34 +36,29 @@ def a_star(start, graph, node_price, goal):
 
             new_node = (key, new_value, key_value+weight)
             temp_neighbors.append(new_node)
-        
-        # node_neighbors = temp_neighbors
 
-        # Remove previously visited
+        # Remove previously visited nodes
         temp_neighbors = remove_nodes(visited, temp_neighbors)
 
         # Add to the queue
         queue += temp_neighbors
 
-        # Change up
+        # Only want the node and overall value to be printed
         level = list()
         for ele in queue:
             fringe_node = (ele[0], ele[1])
             level.append(fringe_node)
-        fringe.append(reorder(level))
-        # print("Q ", queue)
+        fringe.append(reorder(level)) # Add each node to the current level or queue
 
-        # queue = reorder(queue)
-        # next_node = queue.pop(0) 
-        # ^ May not be necessary due to the line below
-        # If I reorder and pop from front, same as getting smallest
+        # Get the smallest according to (path + heuristic) value
         next_node = get_smallest(queue)
         key = next_node[0]
         print(f"Smallest = ({next_node[0]}, {next_node[2]})")
         
-
+        # Pop the smallest, in this case remove it
         queue.remove(next_node)
-        visited.add(node)
+
+        visited.add(node) # Mark it as a visited node
         next_node = (next_node[0], next_node[2]) # Update next node to smallest
 
     return fringe

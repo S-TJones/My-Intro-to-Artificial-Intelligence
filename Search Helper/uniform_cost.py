@@ -12,18 +12,11 @@ def reorder(queue):
 
     new_queue = list()
 
-    while current_index < length:
+    while len(queue) != 0:
         
-        for node in queue: # TODO: Replace with get_smallest
-            number = node[1]
-
-            if number < smallest_num:
-                smallest_num = number
-                smallest_node = node
+        smallest_node = get_smallest(queue)
 
         new_queue.append(smallest_node)
-        smallest_num = float("inf")
-        current_index += 1
         queue.remove(smallest_node)
 
     return new_queue
@@ -90,7 +83,7 @@ def remove_nodes(keys, queue):
     new_queue = list()
 
     if len(keys) == 0:
-        return new_queue
+        return queue
 
     for node in queue:
         if node[0] not in keys:
