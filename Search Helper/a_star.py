@@ -3,24 +3,30 @@
 from visual_helper import *
 from uniform_cost import *
 
+
 # It's more of a Dijkstra to me
 def a_star(start, graph, node_price, goal):
 
     visited = set()
     fringe = list()
     fringe.append( [(start, 0)] )
+    path = start
+    path_expanded = start
     queue = list()
     total = 0
 
-    next_node = (start, 0)
+    next_node = (start, 0, 0, path)
+    print()
 
     while True:
         node = next_node[0]
         weight = next_node[1]
         total += weight
+        new_path = next_node[3]
 
         # Check for goal
         if node == goal:
+            path = new_path
             break
 
         # Get the neighbors
@@ -34,7 +40,7 @@ def a_star(start, graph, node_price, goal):
             heuristic = node_price[key]
             new_value = (key_value + weight) + heuristic
 
-            new_node = (key, new_value, key_value+weight)
+            new_node = (key, new_value, key_value+weight, new_path+key)
             temp_neighbors.append(new_node)
 
         # Remove previously visited nodes
@@ -53,14 +59,18 @@ def a_star(start, graph, node_price, goal):
         # Get the smallest according to (path + heuristic) value
         next_node = get_smallest(queue)
         key = next_node[0]
-        print(f"Smallest = ({next_node[0]}, {next_node[2]})")
+
+        path_expanded += key
+        print(f"| Smallest = ({key}, {next_node[2]})")
         
         # Pop the smallest, in this case remove it
         queue.remove(next_node)
 
         visited.add(node) # Mark it as a visited node
-        next_node = (next_node[0], next_node[2]) # Update next node to smallest
+        next_node = (key, next_node[2], next_node[1], next_node[3]) # Update next node to smallest
 
+    print(f"\n| The PATH: {get_path(path)}")
+    print(f"| Nodes Expanded: {get_path(path_expanded)}")
     return fringe
 
 #--------------------------------------------------------
@@ -115,7 +125,7 @@ if __name__ == "__main__":
         "T": 329,
         "U": 80,
         "V": 199,
-        "Z": 374,
+        "Z": 374
     }
 
     
