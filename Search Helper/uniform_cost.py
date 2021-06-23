@@ -1,5 +1,6 @@
 
 from visual_helper import *
+from test_graphs import *
 
 # Sorts the queue according to priority
 def reorder(queue):
@@ -113,71 +114,49 @@ def uniform_cost(start, graph, target):
     if type(target) != type([]):
         target = [target]
 
-    def path_traveller(start, graph, path, total, all_paths=[]):
+    # Checks all possible paths and stores the paths that get to the target
+    def path_traveller(start, graph, path, total):
 
         if start in target:
             all_paths.append((path, total))
-            return 
+            return 0
 
         # Get current node children
         node_children = graph[start]
+
+        # Remove visited nodes for bi-directional graphs
+        node_children = remove_nodes(path, node_children)
+
+        if node_children == []:
+            return 0
 
         for node in node_children:
             node_key = node[0]
             new_path = path + node_key
             new_total = total + node[1]
-            path_traveller(node_key, graph, new_path, new_total, all_paths)
+            path_traveller(node_key, graph, new_path, new_total)
 
-        return all_paths
+        #------------- End of Helper Function ---------------------------
 
-    paths = list()
-    all_paths = path_traveller(start, graph, start, 0, paths)
+    # Global list to store all paths
+    all_paths = list()
+    path_traveller(start, graph, start, 0)
     
     cheapest = get_smallest(all_paths)
     return cheapest
 
 #--------------------------------------------------------
 if __name__ == "__main__":
-    graph = {
-        "A": [("G", 95), ("D", 80), ("B", 20)],
-        "B": [("F", 10), ("E", 50)],
-        "C": [("D", 50), ("H", 20)],
-        "D": [("G", 10)],
-        "E": [],
-        "F": [("D", 40), ("C", 10)],
-        "G": [],
-        "H": []
-    }
 
-    graph2 = {
-        "S": [("A", 1), ("B", 4)],
-        "A": [("C", 3), ("D", 2)],
-        "B": [("G", 5)],
-        "C": [("E", 5)],
-        "D": [("F", 0), ("G", 3)],
-        "E": [("G", 5)],
-        "F": [],
-        "G": []
-    }
-
-    graph3 = {
-        "S": [("D", 6), ("B1", 9), ("A", 5)],
-        "A": [("G1", 9), ("B2", 3)],
-        "B1": [],
-        "B2": [("C2", 3)],
-        "C": [("F", 7), ("G2", 5)],
-        "C2": [],
-        "D": [("E", 2), ("C", 2)],
-        "E": [("G3", 7)],
-        "F": [],
-        "G1": [],
-        "G2": [],
-        "G3": []
-    }
-
-    # cheapest_path, cost = uniform_cost("A", graph, "G")
+    # cheapest_path, cost = uniform_cost("A", tutorial2_graph, "G")
     # cheapest_path, cost = uniform_cost("S", graph2, "G")
-    cheapest_path, cost = uniform_cost("S", graph3, ["G1", "G2", "G3"])
+    # cheapest_path, cost = uniform_cost("S", graph3, ["G1", "G2", "G3"])
+
+    # Assignment Tests
+    # cheapest_path, cost = uniform_cost("F", graphT1, "G") #Expects ['F', 'D', 'G']
+    # cheapest_path, cost = uniform_cost("T", graphT2, "B") #Expects ['T', 'A', 'S', 'R', 'P', 'B']
+    # cheapest_path, cost = uniform_cost("O", graphT2, "B") #Expects ['O', 'S', 'R', 'P', 'B']
+    # cheapest_path, cost = uniform_cost("D", graphT2, "B") #Expects ['D', 'C', 'P', 'B']
 
     print()
     result = get_path( reform_output(cheapest_path) )
