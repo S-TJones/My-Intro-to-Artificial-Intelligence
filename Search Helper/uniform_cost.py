@@ -114,6 +114,30 @@ def uniform_cost(start, graph, target):
     if type(target) != type([]):
         target = [target]
 
+    # Gets the Fringe
+    def fringe_getter(start, graph):
+        queue = [(start, 0)]
+
+        print(f"\n| The FRINGE:\n| {queue}")
+
+        while len(queue) != 0:
+            next_node = queue.pop(0)
+            key = next_node[0]
+
+            if key in target:
+                break
+
+            if start not in graph.keys():
+                node_children = []
+            else:
+                node_children = graph[key]
+            node_children = reorder(node_children)
+
+            queue = node_children + queue
+            print(f"| {queue}")
+        
+    #-----------------------------------------------
+
     # Checks all possible paths and stores the paths that get to the target
     def path_traveller(start, graph, path, total):
 
@@ -122,7 +146,10 @@ def uniform_cost(start, graph, target):
             return 0
 
         # Get current node children
-        node_children = graph[start]
+        if start not in graph.keys():
+            node_children = []
+        else:
+            node_children = graph[start]
 
         # Remove visited nodes for bi-directional graphs
         node_children = remove_nodes(path, node_children)
@@ -140,15 +167,20 @@ def uniform_cost(start, graph, target):
 
     # Global list to store all paths
     all_paths = list()
-    path_traveller(start, graph, start, 0)
     
+    path_traveller(start, graph, start, 0)
     cheapest = get_smallest(all_paths)
+
+    # Prints the fringe
+    fringe_getter(start, graph)
+
     return cheapest
 
 #--------------------------------------------------------
 if __name__ == "__main__":
 
-    # cheapest_path, cost = uniform_cost("A", tutorial2_graph, "G")
+    # My Tests
+    cheapest_path, cost = uniform_cost("A", tutorial2_graph, "G")
     # cheapest_path, cost = uniform_cost("S", graph2, "G")
     # cheapest_path, cost = uniform_cost("S", graph3, ["G1", "G2", "G3"])
 
