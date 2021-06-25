@@ -180,7 +180,7 @@ def uniform_cost(start, graph, target):
 if __name__ == "__main__":
 
     # My Tests
-    cheapest_path, cost = uniform_cost("A", tutorial2_graph, "G")
+    cheapest_path, cost = uniform_cost("A", midsem_graph, "G")
     # cheapest_path, cost = uniform_cost("S", graph2, "G")
     # cheapest_path, cost = uniform_cost("S", graph3, ["G1", "G2", "G3"])
 
