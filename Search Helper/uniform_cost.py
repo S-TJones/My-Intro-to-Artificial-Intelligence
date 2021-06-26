@@ -123,17 +123,21 @@ def uniform_cost(start, graph, target):
         while len(queue) != 0:
             next_node = queue.pop(0)
             key = next_node[0]
+            weight = next_node[1]
 
             if key in target:
                 break
 
+            # This check is insurance for empty nodes not declared in the graph
             if start not in graph.keys():
                 node_children = []
             else:
                 node_children = graph[key]
-            node_children = reorder(node_children)
 
-            queue = node_children + queue
+            node_children = add_all(weight, node_children)
+            # node_children = reorder(node_children)
+
+            queue = reorder(queue + node_children)
             print(f"| {queue}")
         
     #-----------------------------------------------
