@@ -45,6 +45,7 @@ def a_star(start, graph, node_heuristics, goal):
 
         # Remove previously visited nodes
         temp_neighbors = remove_nodes(visited, temp_neighbors)
+        print(temp_neighbors)
 
         # Add to the queue
         queue += temp_neighbors
