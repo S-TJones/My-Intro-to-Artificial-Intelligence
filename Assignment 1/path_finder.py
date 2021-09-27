@@ -39,28 +39,13 @@ class PriorityQueue:
         smallest_node = None
 
         for node in pri_queue:
-            number = node.value
+            number = node.value # Gets the node Priority
 
             if number < smallest_num:
                 smallest_num = number
                 smallest_node = node
 
         return smallest_node
-
-    # Gets the node with the smallest heuristic or highest Priority
-    # def get_smallest_heuristic(self, pri_queue):
-
-    #     smallest_num = float("inf")
-    #     smallest_node = None
-
-    #     for node in pri_queue:
-    #         number = node.heurist
-
-    #         if number < smallest_num:
-    #             smallest_num = number
-    #             smallest_node = node
-
-    #     return smallest_node
 
     # Sorts the Queue according to the priority of the nodes
     def reorder(self):
@@ -85,7 +70,7 @@ class MinHeap:
     
     
     def __init__(self):
-        self.heap = []
+        self.heap = [None]
     
     
     # ** FINISH THIS FUNCTION **
@@ -371,7 +356,33 @@ if __name__ == "__main__":
     # result = path_find(graph2, heurist_dist2, 'O', 'B', search_type='Greedy', fringe_type='p_queue') #['O', 'S', 'R', 'P', 'B']
     # result = path_find(graph2, heurist_dist2, 'O', 'B', search_type='UCS', fringe_type='p_queue') #['O', 'S', 'R', 'P', 'B']
     # result = path_find(graph, heurist_dist, 'A', 'G', search_type='Greedy', fringe_type='p_queue') #['A', 'G']
-    result = path_find(graph2, heurist_dist2, 'D', 'B', search_type='UCS', fringe_type='p_queue') #['D', 'C', 'P', 'B']
+    # result = path_find(graph2, heurist_dist2, 'D', 'B', search_type='UCS', fringe_type='p_queue') #['D', 'C', 'P', 'B']
+
+    final_exam = {
+        "A": {'B': 6, 'F': 3},
+        "B": {'A': 6, 'D': 2, 'C': 3},
+        "C": {'B': 3, 'D': 1, 'E': 5},
+        "D": {'B': 2, 'C': 1, 'E': 8},
+        "E": {'C': 5, 'D': 8, 'I': 5, 'J': 5},
+        "F": {'A': 3, 'G': 1, 'H': 7},
+        "G": {'F': 1, 'I': 3},
+        "H": {'F': 7, 'I': 2},
+        "I": {'G': 3, 'H': 2, 'J': 3, 'E': 5},
+        "J": {'E': 5, 'I': 3}
+    }
+    final_heuristic = {
+        "A": 10,
+        "B": 8,
+        "C": 5,
+        "D": 7,
+        "E": 3,
+        "F": 6,
+        "G": 5,
+        "H": 3,
+        "I": 1,
+        "J": 0
+    }
+    result = path_find(final_exam, final_heuristic, 'A', 'J', search_type='Greedy', fringe_type='p_queue') #['A', 'S', 'R', 'P', 'B']
 
     # result = path_find(graph, heurist_dist, 'A', 'G', search_type='A-Star', fringe_type='p_queue')
     print(result)
