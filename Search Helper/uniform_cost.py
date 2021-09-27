@@ -182,11 +182,25 @@ def uniform_cost(start, graph, target):
 
 #--------------------------------------------------------
 if __name__ == "__main__":
+    final_exam = {
+        "A": [('B', 8), ('F', 6)],
+        "B": [('A', 10), ('D', 7), ('C', 5)],
+        "C": [('B', 8), ('D', 7), ('E', 3)],
+        "D": [('B', 8), ('C', 5), ('E', 3)],
+        "E": [('C', 5), ('D', 7), ('I', 1), ('J', 0)],
+        "F": [('A', 10), ('G', 5), ('H', 3)],
+        "G": [('F', 6), ('I', 1)],
+        "H": [('F', 6), ('I', 1)],
+        "I": [('G', 5), ('H', 3), ('J', 0), ('E', 3)],
+        "J": [('E', 3), ('I', 1)]
+    }
 
     # My Tests
-    cheapest_path, cost = uniform_cost("A", midsem_graph, "G")
+    # cheapest_path, cost = uniform_cost("A", midsem_graph, "G")
+    # cheapest_path, cost = uniform_cost("A", final_exam, "J")
     # cheapest_path, cost = uniform_cost("S", graph2, "G")
     # cheapest_path, cost = uniform_cost("S", graph3, ["G1", "G2", "G3"])
+    cheapest_path, cost = uniform_cost("A", tutorial2_graph, "G")
 
     # Assignment Tests
     # cheapest_path, cost = uniform_cost("F", graphT1, "G") #Expects ['F', 'D', 'G']
