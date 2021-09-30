@@ -16,7 +16,7 @@ class PriorityQueue:
         self.queue = []
 
     # Gets the length of the Priority Queue
-    def length(self):
+    def get_length(self):
         return len(self.queue)
     
     # Should take the minimum element from the Priority Queue and return it       
@@ -39,7 +39,7 @@ class PriorityQueue:
         smallest_node = None
 
         for node in pri_queue:
-            number = node.value # Gets the node Priority
+            number = node.priority # Gets the Priority
 
             if number < smallest_num:
                 smallest_num = number
@@ -69,35 +69,79 @@ class PriorityQueue:
 class MinHeap:
     
     
-    def __init__(self):
-        self.heap = [None]
+    def __init__(self, num=26): # If no estimate is provided, use 26 because there are 26 letters in the alphabet
+        self.heap = [Node("", -10000, "", -10000)] * num # Filled this list with 'Placeholder Nodes' because of Heap rules explained below
+        self.root = 1 # The top of the Heap is index 1, forget about 0 because...
+        """
+            Heap RULES:
+            The parent node is given by : Heap[(i -1) / 2]
+            The left child node is given by : Heap[(2 * i) + 1]
+            The right child node is given by : Heap[(2 * i) + 2]
+        """
+        self.length = 0
+
+    # Gets the length of the Priority Queue
+    def get_length(self):
+        return self.length
     
-    
-    # ** FINISH THIS FUNCTION **
     # Adds element to heap
+    def enqueue(self, node):
+        self.length += 1
+        self.heap.insert(self.length, node)
+        current = self.length
 
-    def enqueue(self, el):
-        pass
+        while self.heap[current].priority < self.heap[current//2].priority:
+            self.swap(current, current//2)
+            current = current//2
     
-    
-    
-    # ** FINISH THIS FUNCTION **
     # Should take minmum element from heap and return element
-
     def dequeue(self):
-        pass
-    
+        last = self.heap[self.root]
+
+        self.heap[self.root] = self.heap[self.length] # This makes the last value/node entered the new 'Top'
+
+        # Replace node with 'Placeholder Node'. We still need the spot, that's why we don't delete
+        self.heap[self.length] = Node("", -11111, "", -11111)
+
+        self.length -= 1
+        self.reorder(self.root)
+        return last
+
+    def swap(self, node1, node2):
+        self.heap[node1], self.heap[node2] = self.heap[node2], self.heap[node1]
+
+    # This is actually the 'Heapify' function, but I want to use the same function names throughout my code
+    def reorder(self, i=1):
+ 
+        # If the node is a not a leaf node and is greater than any of its child nodes
+        if not (i >= (self.length//2) and i <= self.length):
+            if (self.heap[i].priority > self.heap[2 * i].priority  or  self.heap[i].priority > self.heap[(2 * i) + 1].priority): 
+                if self.heap[2 * i].priority < self.heap[(2 * i) + 1].priority:
+                    # Swap the node with the left child and then call the reorder function on it
+                    self.swap(i, 2 * i)
+                    self.reorder(2 * i)
+                else:
+                    # Swap the node with right child and then call the reorder function on it
+                    self.swap(i, (2 * i) + 1)
+                    self.reorder((2 * i) + 1)
+
 
 # ---------------------- My Node Class ------------------#
 class Node:
+    """
+        Each Search Algorithm checks for different 'values', so I made an extra attribute called...
+        ... the 'self.priority' which is what my code will check for each node so that I don't have to re-writing code to...
+        ... check for different values based on search type. This makes my Node Class flexible enough to work with...
+        ... each search type while using the same 3 functions. If my comments aren't clear enough, contact me.
+    """
 
-    def __init__(self, label, cost, path, total, heurist=0):
+    def __init__(self, label, cost, path, total, heurist=0): # If no heuristic value was provided, use zero
         self.label = label
         self.cost = cost
         self.path = path + self.label
         self.total = total + self.cost
 
-        self.value = self.total + heurist # The value or Priority
+        self.priority = self.total + heurist # The overall value or Priority for the node
 
     # Returns a string of the Node - for testing
     def __str__(self):
@@ -105,7 +149,7 @@ class Node:
 
     # Returns the 'Current Path' and 'Overall Cost' to this node
     def __repr__(self):
-        return ( list(self.path), self.total )
+        return f"({list(self.path)}, {self.total})"
 #--------------------------------------------------------#
 
 # Returns the children/negihbours of a node in the graph including path cost
@@ -135,29 +179,27 @@ def path_find(path_graph, heurist_dist, start, goal,
     if fringe_type == 'p_queue':
         fringe = PriorityQueue()
     else:
-        fringe = MinHeap()
+        fringe = MinHeap(len(heurist_dist)) 
+        # ^ I'm using the length of the graph as a 'possible' number of nodes in the Heap
+        # Fingers crossed and I hope it's enough 
     
-    # start_node = Node(start, None)
-    # goal_node = Node(goal, None)
-    
-    # visited = []
-    # goal_found = False
-    # fringe.enqueue(start_node) # add the start node to fringe
+    result = None
 
     # Does what it needs to do based on 'search_type'
     if search_type == "UCS":
         result = my_ucs(start, path_graph, fringe, goal)
-        return list(result)
 
     elif search_type == "Greedy":
         result = my_greedy(start, path_graph, heurist_dist, fringe, goal)
-        return list(result)
 
     elif search_type == "A-Star":
         result = my_star(start, path_graph, heurist_dist, fringe, goal)
+        
+    # Check results
+    if result == None:
+        return [] # Return an empty list if anything else
+    else:
         return list(result)
-
-    return [] # Return an empty list if anything else
     
 
 def my_ucs(start, graph, fringe, goal):
@@ -166,8 +208,11 @@ def my_ucs(start, graph, fringe, goal):
     fringe.enqueue(start_node) # Adds the start node to fringe
 
     # Loops until the Priority Queue is empty
-    while fringe.length() != 0:
+    while fringe.get_length() != 0:
         next_node = fringe.dequeue()
+
+        if next_node == None: # This means no path to GOAL exists
+            return []
 
         # Check for Goal Node
         if next_node.label == goal:
@@ -196,8 +241,11 @@ def my_greedy(start, graph, heuristic_graph, fringe, goal):
     fringe.enqueue(start_node) # Adds the start node to fringe
 
     # Loops until the Stack is empty
-    while fringe.length() != 0:
+    while fringe.get_length() != 0:
         next_node = fringe.dequeue() # Or pop, same thing
+
+        if next_node == None: # This means no path to GOAL exists
+            return []
 
         # Check for Goal Node
         if next_node.label == goal:
@@ -243,6 +291,9 @@ def my_star(start, graph, heuristic_graph, fringe, goal):
     while True:
         next_node = fringe.dequeue()
 
+        if next_node == None: # This means no path to GOAL exists
+            return []
+
         # Update the Visited node
         visited.append(next_node.label)
 
@@ -278,111 +329,8 @@ def my_star(start, graph, heuristic_graph, fringe, goal):
 
 # Main
 if __name__ == "__main__":
-    graph = {
-	    'A': {'B': 20, 'D': 80, 'G': 95},
-	    'B' : {'E': 50, 'F': 10},
-	    'C' : {'D': 50, 'H': 20},
-	    'D' : {'G': 10},
-	    'F' : {'D': 40, 'C': 10}
-    }
-
-    graph2 = {    
-        'A': {'Z': 75, 'T': 118, 'S': 140},
-        'B' : {'G': 90, 'U': 85, 'P': 101, 'F': 211},
-        'C' : {'P': 138, 'R': 146, 'D': 120},
-        'D' : {'M': 75, 'C': 120},
-        'E' : {'H': 86},
-        'F' : {'S': 99, 'B': 211},
-        'G' : {'B': 90},
-        'H' : {'U': 98, 'E': 86},
-        'I' : {'N': 87, 'V': 92},
-        'L' : {'T': 111, 'M': 70},
-        'M' : {'L': 70, 'D': 75},
-        'N' : {'I': 87},
-        'O' : {'Z': 71, 'S': 151},
-        'P' : {'R': 97, 'B': 101, 'C': 138},
-        'R' : {'S': 80, 'P': 97, 'C': 146},
-        'S' : {'A': 140, 'O': 151, 'R': 80},
-        'T' : {'A': 118, 'L': 70},
-        'U' : {'B': 85, 'H': 98, 'V': 142},
-        'V' : {'I': 92, 'U': 142},
-        'Z' : {'A': 75, 'O': 71}
-    }
-
-    heurist_dist = {
-        'A': 90,
-        'B': 55,
-        'C': 55,
-        'D': 8,
-        'E': 100,
-        'F': 45,
-        'G': 0,
-        'H': 100
-    }
-
-    heurist_dist2 = {
-        'A': 366,
-        'B': 0,
-        'C': 160,
-        'D': 242,
-        'E': 161,
-        'F': 176,
-        'G': 77,
-        'H': 151,
-        'I': 226,
-        'L': 224,
-        'M': 241,
-        'N': 234,
-        'O': 380,
-        'P': 100,
-        'R': 193,
-        'S': 253,
-        'T': 329,
-        'U': 80,
-        'V': 199,
-        'Z': 374
-    }
-
-    # # Testing Functions
-    # result = get_children(graph, "A")
-
-    fringe = PriorityQueue()
-    # result = path_find(graph, heurist_dist, 'A', 'G', search_type='A-Star', fringe_type='p_queue') #['A', 'B', 'F', 'D', 'G']
-    # result = path_find(graph2, heurist_dist2, 'A', 'B', search_type='A-Star', fringe_type='p_queue') #['A', 'S', 'R', 'P', 'B']
-    # result = path_find(graph2, heurist_dist2, 'T', 'B', search_type='A-Star', fringe_type='p_queue') #['T', 'A', 'S', 'R', 'P', 'B']
-    # result = path_find(graph, heurist_dist, 'F', 'G', search_type='UCS', fringe_type='p_queue') #['F', 'D', 'G']
-    # result = path_find(graph2, heurist_dist2, 'A', 'B', search_type='Greedy', fringe_type='p_queue') #['A', 'S', 'R', 'P', 'B']
-    # result = path_find(graph2, heurist_dist2, 'T', 'B', search_type='UCS', fringe_type='p_queue') #['T', 'A', 'S', 'R', 'P', 'B']
-    # result = path_find(graph2, heurist_dist2, 'O', 'B', search_type='Greedy', fringe_type='p_queue') #['O', 'S', 'R', 'P', 'B']
-    # result = path_find(graph2, heurist_dist2, 'O', 'B', search_type='UCS', fringe_type='p_queue') #['O', 'S', 'R', 'P', 'B']
-    # result = path_find(graph, heurist_dist, 'A', 'G', search_type='Greedy', fringe_type='p_queue') #['A', 'G']
-    # result = path_find(graph2, heurist_dist2, 'D', 'B', search_type='UCS', fringe_type='p_queue') #['D', 'C', 'P', 'B']
-
-    final_exam = {
-        "A": {'B': 6, 'F': 3},
-        "B": {'A': 6, 'D': 2, 'C': 3},
-        "C": {'B': 3, 'D': 1, 'E': 5},
-        "D": {'B': 2, 'C': 1, 'E': 8},
-        "E": {'C': 5, 'D': 8, 'I': 5, 'J': 5},
-        "F": {'A': 3, 'G': 1, 'H': 7},
-        "G": {'F': 1, 'I': 3},
-        "H": {'F': 7, 'I': 2},
-        "I": {'G': 3, 'H': 2, 'J': 3, 'E': 5},
-        "J": {'E': 5, 'I': 3}
-    }
-    final_heuristic = {
-        "A": 10,
-        "B": 8,
-        "C": 5,
-        "D": 7,
-        "E": 3,
-        "F": 6,
-        "G": 5,
-        "H": 3,
-        "I": 1,
-        "J": 0
-    }
-    result = path_find(final_exam, final_heuristic, 'A', 'J', search_type='Greedy', fringe_type='p_queue') #['A', 'S', 'R', 'P', 'B']
-
-    # result = path_find(graph, heurist_dist, 'A', 'G', search_type='A-Star', fringe_type='p_queue')
-    print(result)
+    """
+        Did some testing here and there. 
+        Was removed.
+    """
+    pass
