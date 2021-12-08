@@ -1,5 +1,6 @@
 
 from visual_helper import *
+from test_graphs import *
 
 
 # Expand shallowest unexpanded node
@@ -55,5 +56,6 @@ if __name__ == "__main__":
         "H": []
     }
 
-    result = breadth_first_path("A", graph, "H")
+    # result = breadth_first_path("A", graph, "H")
+    result = breadth_first_path("A", tutorial2_graph, "G")
     print("| HELPER: ", get_path(result))
